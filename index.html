@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GameDay Watch 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a press-box scoreboard. Thesis number up top, live candidate board, then the levers, the reasons, and the season log. */
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --ink:#14203a; --muted:#5d6a82; --line:#d7dde8;
+  --accent:#c8102e; --accent-soft:#f9e3e6; --blue:#1f4fa8; --good:#1d7a4a; --warn:#a86a00;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1424; --panel:#151f35; --ink:#e7ecf6; --muted:#9aa7c0; --line:#26334f;
+  --accent:#ff4d63; --accent-soft:#3a1720; --blue:#7fa7ff; --good:#4fcf8a; --warn:#f0b549; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1424; --panel:#151f35; --ink:#e7ecf6; --muted:#9aa7c0; --line:#26334f;
+  --accent:#ff4d63; --accent-soft:#3a1720; --blue:#7fa7ff; --good:#4fcf8a; --warn:#f0b549; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+h1,h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.01em;margin:0;text-wrap:balance;line-height:1}
+h1{font-size:clamp(40px,7vw,72px);font-weight:900}
+h2{font-size:28px;font-weight:700}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:65ch;color:var(--muted);margin:10px 0 0}
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:end;border-bottom:3px solid var(--ink);padding-bottom:22px}
+.big{background:var(--ink);color:var(--bg);padding:18px 20px;display:grid;gap:4px}
+.big .num{font-family:var(--display);font-weight:900;font-size:clamp(64px,12vw,112px);line-height:.9;color:var(--accent);font-variant-numeric:tabular-nums}
+.big .cap{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.big .sub{font-size:13px;opacity:.85}
+.panel{background:var(--panel);border:1px solid var(--line);padding:20px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:20px}
+.board{display:grid;gap:10px;margin-top:14px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:10px;align-items:center}
+.row .lbl{display:flex;justify-content:space-between;gap:8px;font-size:14px;flex-wrap:wrap}
+.row .lbl b{font-weight:600}
+.row .lbl span{color:var(--muted);font-family:var(--mono);font-size:12px}
+.bar{height:10px;background:var(--line);margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);transition:width .35s ease}
+.row.smu .bar i{background:var(--accent)}
+.row.smu .lbl b{color:var(--accent)}
+.pct{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+fieldset{border:0;padding:0;margin:0;display:grid;gap:8px}
+legend{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.tog{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
+.tog input{margin-top:4px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.tog small{display:block;color:var(--muted);font-size:12px}
+select,button{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+button{cursor:pointer;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+button:hover{border-color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.levers{display:grid;gap:18px}
+.why{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.why ul{margin:10px 0 0;padding-left:18px;display:grid;gap:8px}
+.why h3{margin:0;font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.pro h3{color:var(--good)} .con h3{color:var(--warn)}
+.dyn{margin-top:14px;padding:10px 12px;background:var(--accent-soft);font-size:14px}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:400}
+td.wk{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 7px;border:1px solid var(--line);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.chip.sec{border-color:var(--blue);color:var(--blue)}
+.chip.now{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip.proj{border-style:dashed}
+.tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.tally div{border:1px solid var(--line);padding:8px 12px;font-family:var(--mono);font-size:13px}
+.tally div b{font-family:var(--display);font-size:24px;margin-right:6px}
+.tally .zero{border-color:var(--accent);color:var(--accent)}
+.src{font-size:12px;color:var(--muted)}
+.src a{color:var(--muted)}
+@media (max-width:760px){.hero,.grid2,.why{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">College GameDay tracker · 2026 season · updated Oct 29</div>
+      <h1>Is GameDay coming to the Hilltop?</h1>
+      <p class="lede">No. 14 Wake Forest visits No. 19 SMU on Saturday, Nov. 14 (Week 11), which is also SMU Homecoming. This page scores every realistic Week 11 destination and recalculates as results come in. Flip the toggles below as games go final.</p>
+    </div>
+    <div class="big" aria-live="polite">
+      <div class="cap">Chance GameDay picks Wake Forest at SMU</div>
+      <div class="num" id="heroPct">--%</div>
+      <div class="sub" id="heroSub">Ford Stadium · Nov. 14</div>
+    </div>
+  </header>
+
+  <section class="grid2">
+    <div class="panel">
+      <div class="eyebrow">Week 11 · Saturday, Nov. 14</div>
+      <h2>Where GameDay goes</h2>
+      <div class="board" id="board"></div>
+      <p class="note">Model estimate, not an official ESPN or prediction-market number. Kalshi's Week 11 market currently lists Baton Rouge, Bloomington, Boulder and Athens but has little money behind it yet.</p>
+    </div>
+
+    <div class="panel levers">
+      <fieldset>
+        <legend>Losses before Nov. 14</legend>
+        <label class="tog"><input type="checkbox" id="L_smu"><span>SMU loses<small>at Syracuse 10/31 or vs. Virginia Tech 11/6</small></span></label>
+        <label class="tog"><input type="checkbox" id="L_wake"><span>Wake Forest loses<small>vs. Virginia 10/31 or vs. Merrimack 11/7</small></span></label>
+        <label class="tog"><input type="checkbox" id="L_texas"><span>Texas loses<small>vs. Mississippi State 10/31 or next week</small></span></label>
+        <label class="tog"><input type="checkbox" id="L_lsu"><span>LSU loses<small>vs. Alabama 11/7</small></span></label>
+        <label class="tog"><input type="checkbox" id="L_utah"><span>Utah loses<small>at Cincinnati 10/31 or next week</small></span></label>
+        <label class="tog"><input type="checkbox" id="L_uga"><span>Georgia loses<small>vs. Florida 10/31 or next week</small></span></label>
+        <label class="tog"><input type="checkbox" id="L_iu"><span>Indiana loses<small>vs. Minnesota 10/31 (GameDay game)</small></span></label>
+      </fieldset>
+      <fieldset>
+        <legend>Other factors</legend>
+        <label class="tog"><input type="checkbox" id="F_prime"><span>SMU–Wake gets a primetime ABC/ESPN window<small>Kickoff time is still TBD</small></span></label>
+        <label class="tog"><input type="checkbox" id="F_buzz"><span>Student-section campaign goes viral<small>#GameDayToTheHilltop style push</small></span></label>
+      </fieldset>
+      <fieldset>
+        <legend>ESPN announcement (usually Sunday, Nov. 8)</legend>
+        <select id="announce" aria-label="ESPN announced location"></select>
+      </fieldset>
+      <button type="button" id="reset">Reset to today</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">The case</div>
+    <h2>Why Dallas, and why not</h2>
+    <div class="why">
+      <div class="pro">
+        <h3>Working for SMU</h3>
+        <ul>
+          <li><b>No ACC campus yet.</b> Nine stops in, GameDay has hosted at SEC, Big Ten and Big 12 schools only. The ACC is owed a trip.</li>
+          <li><b>First-ever on-campus football show.</b> SMU is one of the few Power Four schools that has never hosted. GameDay likes a first-timer story (Cal 2024, Iowa City's return this year).</li>
+          <li><b>Ranked vs. ranked, ACC title stakes.</b> Both teams are 6-1 and 4-1 in league play, chasing No. 1 Miami.</li>
+          <li><b>Homecoming crowd</b> on Dallas Hall lawn, in a top-5 TV market.</li>
+          <li><b>Week 11 has repeat problems.</b> Texas–LSU is in Baton Rouge (Week 1 stop) and USC–Indiana is in Bloomington (this week's stop).</li>
+        </ul>
+      </div>
+      <div class="con">
+        <h3>Working against</h3>
+        <ul>
+          <li><b>Texas at LSU</b> is the blue-blood, playoff-eliminator game ESPN usually can't resist.</li>
+          <li><b>Utah at Arizona</b> is a top-25 pairing with an unbeaten Utah, though GameDay was in Utah two weeks running.</li>
+          <li><b>Neither team is top 10.</b> Two ranked teams in the teens rarely win a crowded week.</li>
+          <li><b>One loss ends it.</b> SMU has a Friday game Nov. 6, Wake hosts FCS Merrimack; any slip kills the case.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="dyn" id="dyn"></div>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">2026 road schedule</div>
+    <h2>Every stop so far</h2>
+    <div class="tally" id="tally"></div>
+    <div class="tablebox" style="margin-top:14px">
+      <table>
+        <thead><tr><th>Week</th><th>Date</th><th>Site</th><th>Game</th><th>Result</th></tr></thead>
+        <tbody id="stops"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="src">
+    <div class="eyebrow" style="margin-bottom:6px">Sources</div>
+    Locations and results: <a href="https://www.covers.com/ncaaf/college-gameday-schedule-2026">Covers</a>, <a href="https://abc7chicago.com/post/where-is-college-gameday-2026-schedule-locations-recaps/19932157/">ESPN/ABC recaps</a>, <a href="https://sports.yahoo.com/articles/college-gameday-heading-indiana-halloween-230210882.html">Yahoo (Week 9)</a>, <a href="https://en.wikipedia.org/wiki/2026_Utah_Utes_football_team">Utah 2026</a>. Rankings: <a href="https://www.cbssports.com/college-football/news/ap-top-25-poll-texas-utah-college-football-rankings/">AP poll, Oct. 25</a>. Schedules: <a href="https://smumustangs.com/news/2026/5/27/acc-announces-additional-football-game-times.aspx">SMU Athletics</a>, <a href="https://en.wikipedia.org/wiki/2026_Wake_Forest_Demon_Deacons_football_team">Wake Forest 2026</a>, <a href="https://www.espn.com/college-football/schedule/_/week/11/year/2026/seasontype/2">ESPN Week 11</a>. Markets: <a href="https://kalshi.com/markets/kxcollegegameday/college-gameday-location/kxcollegegameday-26w11">Kalshi Week 11</a>.
+  </section>
+</div>
+
+<script>
+// AP ranks as of Oct 25, 2026 (0 = unranked)
+const games = [
+  {id:"smu", site:"Dallas, TX", game:"No. 14 Wake Forest at No. 19 SMU", home:{t:"smu",r:19}, away:{t:"wake",r:14}, brand:0, stakes:3, bonus:3+3+1, note:"ACC fresh, first-time host, Homecoming"},
+  {id:"lsu", site:"Baton Rouge, LA", game:"No. 11 Texas at No. 15 LSU", home:{t:"lsu",r:15}, away:{t:"texas",r:11}, brand:13, stakes:5, bonus:-8-3, note:"Week 1 site; SEC already hosted 5 times"},
+  {id:"az", site:"Tucson, AZ", game:"No. 6 Utah at No. 22 Arizona", home:{t:"az",r:22}, away:{t:"utah",r:6}, brand:0, stakes:3, bonus:2-2-4, note:"Utah featured Weeks 7–8"},
+  {id:"uga", site:"Athens, GA", game:"No. 23 Missouri at No. 3 Georgia", home:{t:"uga",r:3}, away:{t:"mizzou",r:23}, brand:5, stakes:0, bonus:-3-6, note:"Lopsided series history"},
+  {id:"osu", site:"Stillwater, OK", game:"No. 13 Texas Tech at No. 24 Oklahoma State", home:{t:"okst",r:24}, away:{t:"ttu",r:13}, brand:0, stakes:2, bonus:-2, note:"Big 12 race"},
+  {id:"ou", site:"Norman, OK", game:"No. 12 Ole Miss at Oklahoma", home:{t:"ou",r:0}, away:{t:"olemiss",r:12}, brand:5, stakes:0, bonus:-3, note:"Oklahoma is 4-3"},
+  {id:"iu", site:"Bloomington, IN", game:"USC at No. 4 Indiana", home:{t:"iu",r:4}, away:{t:"usc",r:0}, brand:7, stakes:0, bonus:-16, note:"GameDay is there this week"},
+  {id:"tamu", site:"College Station, TX", game:"No. 16 Tennessee at Texas A&M", home:{t:"tamu",r:0}, away:{t:"tenn",r:16}, brand:3, stakes:0, bonus:-3, note:"Tennessee hosted Week 4"}
+];
+const lossMap = {L_smu:"smu",L_wake:"wake",L_texas:"texas",L_lsu:"lsu",L_utah:"utah",L_uga:"uga",L_iu:"iu"};
+const T = 4.5;
+
+const stops = [
+  [1,"Sep 5","Baton Rouge, LA","Clemson at LSU","LSU 51–10","sec"],
+  [2,"Sep 12","Austin, TX","Ohio State at Texas","Texas won","sec"],
+  [3,"Sep 19","Oxford, MS","LSU at Ole Miss","Final","sec"],
+  [4,"Sep 26","Knoxville, TN","Texas at Tennessee","Final","sec"],
+  [5,"Oct 3","Iowa City, IA","Ohio State at Iowa","Final","b10"],
+  [6,"Oct 10","Tuscaloosa, AL","Georgia at Alabama","Georgia 20–17","sec"],
+  [7,"Oct 17","Provo, UT","Notre Dame at BYU","BYU won","b12"],
+  [8,"Oct 24","Salt Lake City, UT","Houston at Utah","Utah 21–13","b12"],
+  [9,"Oct 31","Bloomington, IN","Minnesota at No. 4 Indiana","This Saturday","now"],
+  [10,"Nov 7","South Bend, IN (proj.)","No. 1 Miami at No. 5 Notre Dame","Kalshi favorite","proj"]
+];
+
+const $ = id => document.getElementById(id);
+const sel = $("announce");
+sel.innerHTML = '<option value="">Not announced yet</option>' + games.map(g=>`<option value="${g.id}">${g.site} – ${g.game}</option>`).join("") + '<option value="other">Somewhere else</option>';
+
+function strength(r){ return r>0 && r<=25 ? 26-r : 0; }
+function teamScore(side, losses){
+  let r = side.r;
+  if (losses.has(side.t)) r = r ? r+9 : 0;
+  return {s: strength(r), ranked: r>0 && r<=25, lost: losses.has(side.t)};
+}
+function compute(){
+  const losses = new Set(Object.keys(lossMap).filter(k=>$(k).checked).map(k=>lossMap[k]));
+  const ann = sel.value;
+  const out = games.map(g=>{
+    const h = teamScore(g.home,losses), a = teamScore(g.away,losses);
+    let sc = h.s + a.s + (h.ranked && a.ranked ? 6 : 0) + g.brand + g.bonus;
+    sc += g.stakes - (h.lost?3:0) - (a.lost?3:0);
+    if ((h.lost||a.lost) && g.id==="smu") sc -= 6;
+    if (g.id==="smu"){ if($("F_prime").checked) sc+=3; if($("F_buzz").checked) sc+=2; }
+    return {g, sc};
+  });
+  let probs;
+  if (ann){ probs = out.map(o=>({...o,p: o.g.id===ann?1:0})); }
+  else {
+    const m = Math.max(...out.map(o=>o.sc));
+    const ex = out.map(o=>Math.exp((o.sc-m)/T));
+    const tot = ex.reduce((a,b)=>a+b,0)*1.04; // ~4% reserved for a site not listed
+    probs = out.map((o,i)=>({...o,p: ex[i]/tot}));
+  }
+  return {probs, losses, ann};
+}
+const fmt = p => p>=0.995 ? "100%" : p<0.01 ? "<1%" : Math.round(p*100)+"%";
+
+function render(){
+  const {probs, losses, ann} = compute();
+  const sorted = [...probs].sort((a,b)=>b.p-a.p);
+  $("board").innerHTML = sorted.map(o=>`
+    <div class="row ${o.g.id==='smu'?'smu':''}">
+      <div><div class="lbl"><b>${o.g.site}</b><span>${o.g.game}</span></div>
+      <div class="bar"><i style="width:${(o.p*100).toFixed(1)}%"></i></div></div>
+      <div class="pct">${fmt(o.p)}</div>
+    </div>`).join("");
+  const smu = probs.find(o=>o.g.id==="smu");
+  $("heroPct").textContent = fmt(smu.p);
+  const rank = sorted.findIndex(o=>o.g.id==="smu")+1;
+  $("heroSub").textContent = ann ? (ann==="smu" ? "Confirmed. GameDay is coming to Dallas." : "ESPN picked another site.") : `Ranks #${rank} of ${sorted.length} Week 11 candidates`;
+  let msg;
+  if (ann==="smu") msg = "Announced: first on-campus College GameDay in SMU football history, on Homecoming weekend.";
+  else if (ann) msg = "Week 11 location is set elsewhere. SMU's next shot would be at Notre Dame on Nov. 21, but GameDay will likely have just been in South Bend for Miami.";
+  else if (losses.has("smu")||losses.has("wake")) msg = "A loss by either team drops the matchup out of serious contention. GameDay almost never picks a game where one side is coming off a defeat in November unless the brands are huge.";
+  else if (losses.has("texas")||losses.has("lsu")) msg = "With Texas–LSU damaged, SMU becomes the strongest fresh story on the board. Watch Friday night vs. Virginia Tech.";
+  else msg = "Current read: Texas at LSU is the favorite on brand power, SMU is the clear No. 2 on freshness. The swing games are Alabama at LSU (Nov. 7) and SMU vs. Virginia Tech (Nov. 6).";
+  $("dyn").textContent = msg;
+}
+
+function renderStops(){
+  $("stops").innerHTML = stops.map(s=>`<tr><td class="wk">${s[0]}</td><td class="wk">${s[1]}</td><td>${s[2]}</td><td>${s[3]}</td><td><span class="chip ${s[5]==='now'?'now':s[5]==='proj'?'proj':s[5]==='sec'?'sec':''}">${s[4]}</span></td></tr>`).join("") +
+   `<tr><td class="wk">11</td><td class="wk">Nov 14</td><td><b>?</b></td><td>See board above</td><td><span class="chip proj">Model</span></td></tr>`;
+  $("tally").innerHTML = `<div><b>5</b>SEC hosts</div><div><b>2</b>Big Ten</div><div><b>2</b>Big 12</div><div class="zero"><b>0</b>ACC</div>`;
+}
+
+const ids = [...Object.keys(lossMap),"F_prime","F_buzz","announce"];
+function save(){ try{ localStorage.setItem("gdw", JSON.stringify(Object.fromEntries(ids.map(i=>[i, i==="announce"?sel.value:$(i).checked])))); }catch(e){} }
+function load(){ try{ const d = JSON.parse(localStorage.getItem("gdw")||"{}"); ids.forEach(i=>{ if(i in d){ if(i==="announce") sel.value=d[i]; else $(i).checked=!!d[i]; } }); }catch(e){} }
+ids.forEach(i=>$(i).addEventListener("change",()=>{save();render();}));
+$("reset").addEventListener("click",()=>{ ids.forEach(i=>{ if(i==="announce") sel.value=""; else $(i).checked=false; }); save(); render(); });
+load(); renderStops(); render();
+</script>
+</body>
+</html>
