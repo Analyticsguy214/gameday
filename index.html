@@ -411,7 +411,7 @@ function kOver(e){
   const ids = c.competitors.map(x=>x.team.id);
   const hit = l => (l||[]).find(o=>ids.includes(o.home) && ids.includes(o.away));
   const st = hit(k.set); if (st) return {type:"set", h:st.h, net:st.net||"TBA"};
-  const w = hit(k.windows); if (w) return {type:"window", lo:w.lo, hi:w.hi, net:w.net||null};
+  const w = hit(k.windows); if (w) return {type:"window", lo:w.lo, hi:w.hi, net:w.net||null, label:w.label||""};
   return null;
 }
 // kickoff for a game: ESPN time if set, else an announced override
@@ -710,7 +710,7 @@ function renderTV(){
     const a = side(r.c,"away"), h = side(r.c,"home"), ra = rankOf(a), rh = rankOf(h);
     const mine = [a,h].some(x=>x.team.id==="2567");
     const st = r.c.status.type;
-    const winTxt = r.p && r.p.win ? `Window ${hLabel(r.p.win.lo)}–${hLabel(r.p.win.hi)} · ` : "";
+    const winTxt = r.p && r.p.win ? (r.p.win.label ? `${r.p.win.label} · ` : `Window ${hLabel(r.p.win.lo)}–${hLabel(r.p.win.hi)} · `) : "";
     const status = r.set ? (st.state==="pre" ? `<span class="chip set">Set${r.ki.src==="announced"?" · announced":""}</span>` : `<span class="chip">${esc(st.shortDetail||"")}</span>`) : `<span class="chip ${r.p&&r.p.conf==='likely'?'likely':r.p&&r.p.conf==='lean'?'lean':'proj'}">${winTxt}Projected · ${r.p?({likely:"Likely",lean:"Lean",toss:"Toss-up"})[r.p.conf]:"Toss-up"}</span>`;
     return `<tr class="${mine?'smu':''}"><td class="wk">${r.day} · ${hLabel(r.h)}</td>
       <td>${esc(r.set ? r.ki.net : (r.p ? r.p.net : "TBA"))}</td>

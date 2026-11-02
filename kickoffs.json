@@ -1,6 +1,6 @@
 {
- "updated": "Mon, Nov 2, 11:25 AM CT",
- "note": "Week 11 (Nov. 14): Wake Forest at SMU is set for 11:00 AM CT (Wake Forest Athletics, Nov. 2); network not confirmed yet. SEC games have time windows only. Other ACC, Big Ten and Big 12 times fill in from ESPN as they are announced; held games are finalized Sunday, Nov. 8.",
+ "updated": "Mon, Nov 2, 11:35 AM CT",
+ "note": "Week 11 (Nov. 14): ACC times are out (ACC release via Virginia Athletics, Nov. 2). Wake Forest at SMU is 11:00 AM CT on ESPN or ESPN2, to be designated. Two ACC night games and several SEC games are windows to be set after Nov. 7. Big Ten and Big 12 Saturday times are not announced yet and fill in from ESPN as they come out.",
  "windows": [
   {
    "away": "333",
@@ -49,6 +49,20 @@
    "home": "96",
    "lo": 17,
    "hi": 19
+  },
+  {
+   "away": "97",
+   "home": "153",
+   "lo": 18,
+   "hi": 18.5,
+   "label": "6:00 PM ESPN2 or 6:30 PM ACCN, set after Nov. 7"
+  },
+  {
+   "away": "24",
+   "home": "259",
+   "lo": 18,
+   "hi": 18.5,
+   "label": "6:00 PM ESPN2 or 6:30 PM ACCN, set after Nov. 7"
   }
  ],
  "set": [
@@ -56,8 +70,50 @@
    "away": "154",
    "home": "2567",
    "h": 11,
-   "net": "TBA",
-   "source": "godeacs.com, Nov. 2"
+   "net": "ESPN or ESPN2",
+   "source": "ACC release, Nov. 2"
+  },
+  {
+   "away": "150",
+   "home": "2390",
+   "h": 11,
+   "net": "ABC",
+   "source": "ACC release, Nov. 2"
+  },
+  {
+   "away": "183",
+   "home": "152",
+   "h": 11,
+   "net": "ACCN",
+   "source": "ACC release, Nov. 2"
+  },
+  {
+   "away": "59",
+   "home": "228",
+   "h": 11.5,
+   "net": "The CW",
+   "source": "ACC release, Nov. 2"
+  },
+  {
+   "away": "103",
+   "home": "87",
+   "h": 14.5,
+   "net": "NBC",
+   "source": "ACC release, Nov. 2"
+  },
+  {
+   "away": "25",
+   "home": "258",
+   "h": 14.5,
+   "net": "ACCN",
+   "source": "ACC release, Nov. 2"
+  },
+  {
+   "away": "52",
+   "home": "221",
+   "h": 18,
+   "net": "ESPN",
+   "source": "ACC release, Nov. 2"
   }
  ]
 }
