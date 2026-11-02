@@ -1,0 +1,55 @@
+{
+ "updated": "Mon, Nov 2, 11:30 AM CT",
+ "note": "Week 11 (Nov. 14): the SEC has released time windows only. The ACC, Big Ten and Big 12 have not announced Saturday kickoff times yet, so Wake Forest at SMU is still TBA. Some games may be held for the six-day pick and finalized Sunday, Nov. 8.",
+ "windows": [
+  {
+   "away": "333",
+   "home": "238",
+   "lo": 11,
+   "hi": 12
+  },
+  {
+   "away": "2",
+   "home": "344",
+   "lo": 11,
+   "hi": 12
+  },
+  {
+   "away": "145",
+   "home": "201",
+   "lo": 14.5,
+   "hi": 15.5
+  },
+  {
+   "away": "142",
+   "home": "61",
+   "lo": 14.5,
+   "hi": 19
+  },
+  {
+   "away": "2579",
+   "home": "8",
+   "lo": 14.5,
+   "hi": 19
+  },
+  {
+   "away": "2633",
+   "home": "245",
+   "lo": 14.5,
+   "hi": 19
+  },
+  {
+   "away": "251",
+   "home": "99",
+   "lo": 14.5,
+   "hi": 19
+  },
+  {
+   "away": "57",
+   "home": "96",
+   "lo": 17,
+   "hi": 19
+  }
+ ],
+ "set": []
+}

@@ -288,6 +288,7 @@ tr.out td{color:var(--muted)}
         <div><div class="eyebrow">Kickoff times · Central</div><h2>TV windows</h2></div>
         <div class="chips" id="tvWeeks"></div>
       </div>
+      <p class="dyn" id="tvStatus" hidden></p>
       <div class="tablebox" style="margin-top:12px">
         <table>
           <thead><tr><th>Kickoff (CT)</th><th>Network</th><th>Game</th><th>Status</th></tr></thead>
@@ -405,12 +406,28 @@ function pHome(e){
 const ctTime = d => new Date(d).toLocaleString("en-US",{timeZone:"America/Chicago",weekday:"short",hour:"numeric",minute:"2-digit"});
 const ctHour = d => { const p = new Date(d).toLocaleString("en-US",{timeZone:"America/Chicago",hour:"numeric",minute:"numeric",hour12:false}).split(":"); return Number(p[0])%24 + Number(p[1])/60; };
 const nets = c => (c.broadcasts||[]).flatMap(b=>b.names||[]).join(" / ");
+function kOver(e){
+  const k = S.kick; if (!k) return null; const c = comp(e); if (!c) return null;
+  const ids = c.competitors.map(x=>x.team.id);
+  const hit = l => (l||[]).find(o=>ids.includes(o.home) && ids.includes(o.away));
+  const st = hit(k.set); if (st) return {type:"set", h:st.h, net:st.net||"TBA"};
+  const w = hit(k.windows); if (w) return {type:"window", lo:w.lo, hi:w.hi, net:w.net||null};
+  return null;
+}
+// kickoff for a game: ESPN time if set, else an announced override
+function kickInfo(e){
+  const c = comp(e), o = kOver(e);
+  if (c.timeValid !== false) return {set:true, h:ctHour(e.date), net:nets(c)||"TBA", src:"ESPN"};
+  if (o && o.type==="set") return {set:true, h:o.h, net:o.net, src:"announced"};
+  return {set:false, window: o && o.type==="window" ? o : null};
+}
 const fmtP = p => p>=0.995 ? "100%" : p<0.01 ? "<1%" : Math.round(p*100)+"%";
 
 /* ---------- fetch ---------- */
 async function getJSON(u){ u += (u.includes("?")?"&":"?") + "_=" + Date.now(); const r = await fetch(u, {cache:"no-store"}); if (!r.ok) throw new Error(r.status); return r.json(); }
 async function refresh(){
   try{ const s = await getJSON("status.json"); S.announced = s.week11||""; S.annNote = s.note||""; }catch(e){}
+  try{ S.kick = await getJSON("kickoffs.json"); }catch(e){}
   try{
     const cur = await getJSON(`${BASE}/scoreboard?groups=80&limit=400`);
     const cw = cur.week && cur.week.number, regular = cur.season && cur.season.type === 2;
@@ -461,7 +478,7 @@ function gdModel(){
   // SMU-Wake TV slot (set or projected) feeds the primetime bonus
   const smuG = [...S.events.values()].find(e=>{ const c = comp(e); return c && c.competitors.some(x=>x.team.id==="2567") && c.competitors.some(x=>x.team.id==="154"); });
   let prime = false;
-  if (smuG){ const c = comp(smuG); if (c.timeValid !== false){ const h = ctHour(smuG.date); prime = h >= 18 || /ABC/.test(nets(c)); } else { const slot = S.tvProj && S.tvProj.get(smuG.id); prime = !!(slot && slot.h >= 18); } }
+  if (smuG){ const c = comp(smuG); const ki = kickInfo(smuG); if (ki.set){ prime = ki.h >= 18 || /ABC/.test(ki.net); } else { const slot = S.tvProj && S.tvProj.get(smuG.id); prime = !!(slot && slot.h >= 18); } }
   const buzz = $("F_buzz").checked;
   const strength = r => r>0 && r<=25 ? 26-r : 0;
   const score = (g, L) => {
@@ -641,24 +658,32 @@ function tvProject(week){
   const out = new Map();
   const quality = e => { const c = comp(e); return c.competitors.reduce((s,x)=>{ const r = rankOf(x); return s + (r ? 26-r : (P4.has(tinfo(x).conf)?3:0)) + (BRANDS.has(x.team.id)?5:0); },0) + (c.competitors.every(x=>rankOf(x)) ? 10 : 0); };
   // occupy slots with set games
-  relevant.forEach(e=>{ const c = comp(e); if (c.timeValid===false) return; const h = ctHour(e.date), n = nets(c);
-    const i = SLOTS.findIndex((s,idx)=>!used.has(idx) && n.split(" / ").includes(s.net) && Math.abs(s.h-h)<=1.5); if (i>=0) used.add(i); });
-  const tbd = relevant.filter(e=>comp(e).timeValid===false).sort((a,b)=>quality(b)-quality(a));
+  relevant.forEach(e=>{ const ki = kickInfo(e); if (!ki.set) return;
+    const i = SLOTS.findIndex((s,idx)=>!used.has(idx) && ki.net.split(" / ").includes(s.net) && Math.abs(s.h-ki.h)<=1.5); if (i>=0) used.add(i); });
+  const tbd = relevant.filter(e=>!kickInfo(e).set).sort((a,b)=>quality(b)-quality(a));
   tbd.forEach((e,rank)=>{
     const c = comp(e);
     const confs = c.competitors.map(x=>tinfo(x).conf);
     const home = side(c,"home");
     if (home.team.id==="87"){ out.set(e.id,{net:"NBC", h:14.5, conf: rank<6?"likely":"lean"}); return; }
     const q = quality(e);
+    const win = kickInfo(e).window;
     let pick = -1;
-    for (let i=0;i<SLOTS.length;i++){
-      if (used.has(i)) continue;
-      const s = SLOTS[i];
-      if (!confs.some(cf=>s.c.includes(cf))) continue;
-      if (s.tier===1 && q < 25) continue;
-      if (s.tier===2 && q < 12) continue;
-      pick = i; break;
+    for (let pass=0; pass<2 && pick<0; pass++){
+      for (let i=0;i<SLOTS.length;i++){
+        if (used.has(i)) continue;
+        const s = SLOTS[i];
+        if (!confs.some(cf=>s.c.includes(cf))) continue;
+        if (win && (s.h < win.lo-0.01 || s.h > win.hi+0.01)) continue;
+        if (win && win.net && s.net!==win.net) continue;
+        if (pass===0 && s.tier===1 && q < 25) continue;
+        if (pass===0 && s.tier===2 && q < 12) continue;
+        pick = i; break;
+      }
+      if (!win) break;
     }
+    if (pick<0 && win){ out.set(e.id,{net:win.net||"TBA", h:win.lo, conf:"lean", win}); return; }
+    if (pick>=0 && win){ used.add(pick); out.set(e.id,{net:SLOTS[pick].net, h:SLOTS[pick].h, conf: win.hi-win.lo<=1 ? "likely" : rank<4 ? "likely" : "lean", win}); return; }
     if (pick>=0){ used.add(pick); out.set(e.id,{net:SLOTS[pick].net, h:SLOTS[pick].h, conf: rank<4 ? "likely" : rank<12 ? "lean" : "toss"}); }
     else out.set(e.id,{net:"ESPN+ / streaming", h:11, conf:"toss"});
   });
@@ -674,18 +699,21 @@ function renderTV(){
   const {list, proj} = tvProject(S.tvWeek);
   const rows = list.map(e=>{
     const c = comp(e), p = proj.get(e.id);
-    const set = c.timeValid !== false;
+    const ki = kickInfo(e), set = ki.set;
     const day = new Date(e.date).toLocaleDateString("en-US",{timeZone:"America/Chicago",weekday:"short",month:"short",day:"numeric"});
-    const h = set ? ctHour(e.date) : (p ? p.h : 11);
-    return {e, c, set, p, day, h, sortKey: Date.parse(e.date.slice(0,10)) + h*36e5};
+    const h = set ? ki.h : (p ? p.h : 11);
+    return {e, c, set, ki, p, day, h, sortKey: Date.parse(e.date.slice(0,10)) + h*36e5};
   }).sort((a,b)=>a.sortKey-b.sortKey);
+  $("tvStatus").textContent = S.kick && S.kick.note ? S.kick.note + (S.kick.updated ? ` (checked ${S.kick.updated})` : "") : "";
+  $("tvStatus").hidden = !$("tvStatus").textContent;
   $("tvBody").innerHTML = rows.length ? rows.map(r=>{
     const a = side(r.c,"away"), h = side(r.c,"home"), ra = rankOf(a), rh = rankOf(h);
     const mine = [a,h].some(x=>x.team.id==="2567");
     const st = r.c.status.type;
-    const status = r.set ? (st.state==="pre" ? `<span class="chip set">Set</span>` : `<span class="chip">${esc(st.shortDetail||"")}</span>`) : `<span class="chip ${r.p&&r.p.conf==='likely'?'likely':r.p&&r.p.conf==='lean'?'lean':'proj'}">Projected · ${r.p?({likely:"Likely",lean:"Lean",toss:"Toss-up"})[r.p.conf]:"Toss-up"}</span>`;
-    return `<tr class="${mine?'smu':''}"><td class="wk">${r.day} · ${r.set ? ctTime(r.e.date).split(" ").slice(1).join(" ") : hLabel(r.h)}</td>
-      <td>${esc(r.set ? (nets(r.c)||"TBA") : (r.p ? r.p.net : "TBA"))}</td>
+    const winTxt = r.p && r.p.win ? `Window ${hLabel(r.p.win.lo)}–${hLabel(r.p.win.hi)} · ` : "";
+    const status = r.set ? (st.state==="pre" ? `<span class="chip set">Set${r.ki.src==="announced"?" · announced":""}</span>` : `<span class="chip">${esc(st.shortDetail||"")}</span>`) : `<span class="chip ${r.p&&r.p.conf==='likely'?'likely':r.p&&r.p.conf==='lean'?'lean':'proj'}">${winTxt}Projected · ${r.p?({likely:"Likely",lean:"Lean",toss:"Toss-up"})[r.p.conf]:"Toss-up"}</span>`;
+    return `<tr class="${mine?'smu':''}"><td class="wk">${r.day} · ${hLabel(r.h)}</td>
+      <td>${esc(r.set ? r.ki.net : (r.p ? r.p.net : "TBA"))}</td>
       <td>${ra?ra+" ":""}${esc(tinfo(a).name)} at ${rh?rh+" ":""}${esc(tinfo(h).name)}</td><td>${status}</td></tr>`;
   }).join("") : `<tr><td colspan="4" class="empty">No Power Four or ranked games found for this week.</td></tr>`;
 }
@@ -693,9 +721,9 @@ function renderTV(){
 function renderKick(){
   const g = [...S.events.values()].find(e=>{ const c = comp(e); return c && c.competitors.some(x=>x.team.id==="2567") && c.competitors.some(x=>x.team.id==="154"); });
   if (!g){ $("kKick").textContent = "TBD"; return; }
-  const c = comp(g);
-  if (c.timeValid !== false){ $("kKick").textContent = ctTime(g.date).split(" ").slice(1).join(" "); $("kKickS").textContent = `Set · ${nets(c)||"network TBA"}`; }
-  else { const p = S.tvProj && S.tvProj.get(g.id); $("kKick").textContent = p ? hLabel(p.h) : "TBD"; $("kKickS").textContent = p ? `Projected · ${p.net}` : "Not set yet"; }
+  const ki = kickInfo(g);
+  if (ki.set){ $("kKick").textContent = hLabel(ki.h); $("kKickS").textContent = `Set · ${ki.net}`; }
+  else { const p = S.tvProj && S.tvProj.get(g.id); $("kKick").textContent = p ? hLabel(p.h) : "TBD"; $("kKickS").textContent = p ? `Projected · ${p.net} · not announced yet` : "Not announced yet"; }
 }
 
 function renderStops(){
